@@ -14,9 +14,9 @@
   <a href="https://howsuyash.github.io/"><img src="https://img.shields.io/badge/PORTFOLIO-howsuyash.github.io-ff79c6?style=for-the-badge&labelColor=2b2b3a&logo=googlechrome&logoColor=white" alt="Portfolio"/></a>
 </p>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">🧑‍💻 About Me</h2>
+<p align="center"><img src="assets/h-about.svg" alt="About Me" width="70%"/></p>
 
 <table>
 <tr>
@@ -37,18 +37,18 @@
 </tr>
 </table>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">🧰 Tech Stack</h2>
+<p align="center"><img src="assets/h-stack.svg" alt="Tech Stack" width="70%"/></p>
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=java,spring,kotlin,python,js,ts,html,css,react,threejs&perline=10" alt="Languages and frameworks"/><br/>
   <img src="https://skillicons.dev/icons?i=pytorch,fastapi,flask,postgres,firebase,docker,aws,git,github,vscode&perline=10" alt="AI, data, cloud and tools"/>
 </p>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">🚀 Featured Projects</h2>
+<p align="center"><img src="assets/h-projects.svg" alt="Featured Projects" width="70%"/></p>
 
 <table>
 <tr>
@@ -107,9 +107,9 @@ Bug report in, failing test, green suite — a test-first bug-fixing agent on NV
 </tr>
 </table>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">📊 GitHub Analytics</h2>
+<p align="center"><img src="assets/h-analytics.svg" alt="GitHub Analytics" width="70%"/></p>
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=HowSuyash&theme=dark&background=0D1117&ring=FF79C6&fire=FF79C6&currStreakLabel=FF79C6&sideLabels=FFB3E0&dates=8B949E&currStreakNum=FFFFFF&sideNums=FFFFFF&stroke=30363D&hide_border=true" alt="GitHub streak" width="80%"/>
@@ -119,9 +119,9 @@ Bug report in, failing test, green suite — a test-first bug-fixing agent on NV
   <img src="https://github-readme-activity-graph.vercel.app/graph?username=HowSuyash&bg_color=0d1117&color=ffb3e0&line=ff79c6&point=ffffff&area=true&area_color=ff79c6&hide_border=true&custom_title=Suyash's%20Contribution%20Graph" alt="Contribution activity graph" width="100%"/>
 </p>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">🐍 Contribution Graph</h2>
+<p align="center"><img src="assets/h-graph.svg" alt="Contribution Graph" width="70%"/></p>
 
 <p align="center">
   <picture>
@@ -131,9 +131,9 @@ Bug report in, failing test, green suite — a test-first bug-fixing agent on NV
   </picture>
 </p>
 
----
+<p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
 
-<h2 align="center">🌐 Let's Connect</h2>
+<p align="center"><img src="assets/h-connect.svg" alt="Let's Connect" width="70%"/></p>
 
 <p align="center">
   <a href="https://www.linkedin.com/in/howsuyash/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
@@ -142,6 +142,4 @@ Bug report in, failing test, green suite — a test-first bug-fixing agent on NV
   <a href="mailto:suyashshukla0702@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
 </p>
 
-<p align="center"><i>See you in the next commit 🌸</i></p>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:7b2ff7,100:ff79c6&height=120&section=footer" width="100%" alt=""/>
+<img src="assets/footer.svg" width="100%" alt="See you in the next commit"/>

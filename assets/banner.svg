@@ -14,10 +14,22 @@
     <stop offset="0.45" stop-color="#ff8a5c"/>
     <stop offset="1" stop-color="#ff2e93"/>
   </linearGradient>
-  <linearGradient id="name" x1="0" y1="0" x2="1" y2="0">
+  <linearGradient id="name" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="420" y2="0" spreadMethod="reflect">
     <stop offset="0" stop-color="#ff79c6"/>
-    <stop offset="0.5" stop-color="#ffb86c"/>
+    <stop offset="0.55" stop-color="#ffb86c"/>
+    <stop offset="0.8" stop-color="#fff1c1"/>
     <stop offset="1" stop-color="#ff79c6"/>
+    <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="840 0" dur="5s" repeatCount="indefinite"/>
+  </linearGradient>
+  <linearGradient id="meteor" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#fff"/>
+  </linearGradient>
+  <linearGradient id="scan" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="250" y2="0">
+    <stop offset="0" stop-color="#ff79c6" stop-opacity="0.35"/>
+    <stop offset="0.5" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#ff79c6" stop-opacity="0.35"/>
+    <animateTransform attributeName="gradientTransform" type="translate" values="-250 0;250 0" dur="2.4s" repeatCount="indefinite"/>
   </linearGradient>
   <filter id="glow" x="-20%" y="-40%" width="140%" height="180%">
     <feGaussianBlur stdDeviation="6" result="b"/>
@@ -45,6 +57,10 @@
   @keyframes pulse{0%,100%{opacity:.9}50%{opacity:1}}
   .cur{animation:blink 1s steps(1) infinite}
   @keyframes blink{50%{opacity:0}}
+  .flk{animation:flk 5s linear infinite}
+  @keyframes flk{0%,18%,22%,25%,53%,57%,100%{opacity:1}20%,24%,55%{opacity:.55}}
+  .rise{animation:rise 6s linear infinite}
+  @keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-120px);opacity:0}}
 </style>
 <rect width="1200" height="222" fill="url(#sky)"/>
 <rect y="222" width="1200" height="118" fill="url(#ground)"/>
@@ -118,7 +134,11 @@
 <circle class="tw" cx="568" cy="125" r="0.7" fill="#fff" style="animation-delay:-0.98s"/>
 <circle class="tw" cx="622" cy="96" r="0.7" fill="#fff" style="animation-delay:-2.65s"/>
 <circle class="tw" cx="68" cy="33" r="0.7" fill="#fff" style="animation-delay:-2.32s"/>
-<circle cx="965" cy="160" r="135" fill="#ff2e93" opacity="0.35" filter="url(#softglow)"/>
+<circle cx="965" cy="160" r="135" fill="#ff2e93" opacity="0.35" filter="url(#softglow)"><animate attributeName="r" values="123;150;123" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite"/></circle>
+<g opacity="0"><line x1="0" y1="0" x2="90" y2="0" stroke="url(#meteor)" stroke-width="2" stroke-linecap="round" transform="translate(80 20) rotate(25)"/><animateTransform attributeName="transform" type="translate" values="0 0;260 120" keyTimes="0;1" dur="3.6s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.12;0.3;1" dur="3.6s" begin="0s" repeatCount="indefinite"/></g>
+<g opacity="0"><line x1="0" y1="0" x2="90" y2="0" stroke="url(#meteor)" stroke-width="2" stroke-linecap="round" transform="translate(520 6) rotate(25)"/><animateTransform attributeName="transform" type="translate" values="0 0;260 120" keyTimes="0;1" dur="4.2s" begin="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.12;0.3;1" dur="4.2s" begin="1.3s" repeatCount="indefinite"/></g>
+<g opacity="0"><line x1="0" y1="0" x2="90" y2="0" stroke="url(#meteor)" stroke-width="2" stroke-linecap="round" transform="translate(760 40) rotate(25)"/><animateTransform attributeName="transform" type="translate" values="0 0;260 120" keyTimes="0;1" dur="3.9s" begin="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.12;0.3;1" dur="3.9s" begin="2.6s" repeatCount="indefinite"/></g>
+<g opacity="0"><line x1="0" y1="0" x2="90" y2="0" stroke="url(#meteor)" stroke-width="2" stroke-linecap="round" transform="translate(300 60) rotate(25)"/><animateTransform attributeName="transform" type="translate" values="0 0;260 120" keyTimes="0;1" dur="5.0s" begin="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.12;0.3;1" dur="5.0s" begin="3.4s" repeatCount="indefinite"/></g>
 <g clip-path="url(#aboveHz)"><circle class="sun" cx="965" cy="160" r="105" fill="url(#sun)" mask="url(#sunStripes)"/></g>
 <polygon points="-40,222 7,210 53,197 100,180 147,162 193,175 240,183 287,198 333,210 380,222" fill="#12052a" opacity="1"/>
 <polygon points="280,222 318,214 356,209 393,201 431,195 469,187 507,199 544,205 582,213 620,222" fill="#1a0733" opacity="1"/>
@@ -186,9 +206,25 @@
 <line x1="0" x2="1200" y1="222" y2="222"><animate attributeName="y1" values="222;340" dur="4.0s" begin="-3.00s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.55 0 1 0.6"/><animate attributeName="y2" values="222;340" dur="4.0s" begin="-3.00s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.55 0 1 0.6"/><animate attributeName="stroke-opacity" values="0.15;1" dur="4.0s" begin="-3.00s" repeatCount="indefinite"/></line>
 <line x1="0" x2="1200" y1="222" y2="222"><animate attributeName="y1" values="222;340" dur="4.0s" begin="-3.50s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.55 0 1 0.6"/><animate attributeName="y2" values="222;340" dur="4.0s" begin="-3.50s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.55 0 1 0.6"/><animate attributeName="stroke-opacity" values="0.15;1" dur="4.0s" begin="-3.50s" repeatCount="indefinite"/></line>
 </g>
-<rect x="0" y="221" width="1200" height="2.5" fill="#ff79c6" filter="url(#glow)"/>
-<text x="70" y="118" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="76" font-weight="900" font-style="italic" fill="url(#name)" filter="url(#glow)" letter-spacing="1">Suyash Shukla</text>
+<rect x="0" y="221" width="1200" height="2.5" fill="#ff79c6" filter="url(#glow)"><animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/></rect>
+<circle class="rise" cx="299" cy="226" r="2" fill="#ff9bd5" style="animation-delay:-0.44s"/>
+<circle class="rise" cx="371" cy="226" r="1.2" fill="#ff9bd5" style="animation-delay:-0.73s"/>
+<circle class="rise" cx="1110" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-3.86s"/>
+<circle class="rise" cx="186" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-5.30s"/>
+<circle class="rise" cx="275" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-5.72s"/>
+<circle class="rise" cx="1047" cy="226" r="2" fill="#ff9bd5" style="animation-delay:-0.98s"/>
+<circle class="rise" cx="986" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-0.97s"/>
+<circle class="rise" cx="1173" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-2.42s"/>
+<circle class="rise" cx="247" cy="226" r="2" fill="#ff9bd5" style="animation-delay:-1.91s"/>
+<circle class="rise" cx="445" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-2.03s"/>
+<circle class="rise" cx="531" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-0.11s"/>
+<circle class="rise" cx="620" cy="226" r="1.2" fill="#ff9bd5" style="animation-delay:-1.77s"/>
+<circle class="rise" cx="151" cy="226" r="1.2" fill="#ff9bd5" style="animation-delay:-5.51s"/>
+<circle class="rise" cx="1147" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-0.63s"/>
+<circle class="rise" cx="335" cy="226" r="1.2" fill="#ff9bd5" style="animation-delay:-5.44s"/>
+<circle class="rise" cx="334" cy="226" r="1.6" fill="#ff9bd5" style="animation-delay:-0.78s"/>
+<text class="flk" x="70" y="118" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="76" font-weight="900" font-style="italic" fill="url(#name)" filter="url(#glow)" letter-spacing="1">Suyash Shukla</text>
 <text x="74" y="160" font-family="'Cascadia Code', Consolas, 'Courier New', monospace" font-size="22" fill="#8be9fd" letter-spacing="2">&gt; Web &amp; AI Developer<tspan class="cur">_</tspan></text>
-<rect x="74" y="178" width="250" height="3" fill="#ff79c6" opacity="0.8"/>
+<rect x="74" y="178" width="250" height="3" fill="url(#scan)"/>
 <text x="1180" y="330" text-anchor="end" font-family="'Cascadia Code', Consolas, 'Courier New', monospace" font-size="14" fill="#ffb3e0" opacity="0.8">howsuyash.github.io</text>
 </svg>
