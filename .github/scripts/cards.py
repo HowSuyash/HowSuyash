@@ -8,7 +8,7 @@ an editorial serif (Instrument Serif, OFL, embedded so it renders inside an <img
 A README can't run scripts, but an SVG shown through <img> still plays its own CSS and SMIL
 animations, so every card moves on its own: the name types itself and a blue letter walks along
 it, the portrait draws in from the top, the heatmap fills left to right and a light sweeps it,
-bars grow, numbers count up, and every card plays again every 14 s. All of it is CSS, which every browser plays inside an <img>. Viewers who ask for reduced motion get the still cards.
+bars grow, numbers count up, and every card plays again every 14 s; in between, bars breathe, arrows nudge, a caret blinks and light crosses the cards. All of it is CSS, which every browser plays inside an <img>. Viewers who ask for reduced motion get the still cards.
 Standard library only.
 
     GITHUB_TOKEN=... python .github/scripts/cards.py <user> <out dir>
@@ -87,6 +87,12 @@ STYLE = (
     f"@keyframes type{{0%{{fill-opacity:0}}{pct(.12)},96%{{fill-opacity:1}}100%{{fill-opacity:0}}}}"
     f"@keyframes draw{{0%{{clip-path:inset(0 0 100% 0)}}{pct(2.6)},96%{{clip-path:inset(0 0 0 0)}}100%{{clip-path:inset(0 0 100% 0)}}}}"
     "@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}"
+    "@keyframes eq{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.84)}}"
+    "@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}"
+    "@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}"
+    "@keyframes sheen{0%{transform:translateX(-160px)}38%,100%{transform:translateX(460px)}}"
+    "@keyframes sheenwide{0%{transform:translateX(-200px)}45%,100%{transform:translateX(720px)}}"
+    ".eq{transform-box:fill-box;transform-origin:50% 100%;animation:eq 2.6s ease-in-out infinite}"
     f".r{{animation:rise {CYCLE}s {EASE} infinite both}}.p{{animation:pop {CYCLE}s ease-out infinite both}}"
     f".g{{transform-box:fill-box;transform-origin:50% 100%;animation:grow {CYCLE}s {EASE} infinite both}}"
     # no motion wanted: the finished card, still
@@ -143,6 +149,17 @@ def count_up(frames: list[str], start: float, length: float = 1.1) -> tuple[list
             tag = tag.replace('class="', 'class="last ', 1)
         out.append(tag)
     return out, css
+
+
+def sheen(clip: str, height: float, color: str, strength: float, start: float, wide: bool = False) -> str:
+    """A slanted band of light that crosses the area in [clip] every few seconds, for good."""
+    move = "sheenwide 6s" if wide else "sheen 4.5s"
+    return (
+        f'<linearGradient id="sh" x1="0" x2="1"><stop offset="0" stop-color="{color}" stop-opacity="0"/>'
+        f'<stop offset=".5" stop-color="{color}" stop-opacity="{strength}"/><stop offset="1" stop-color="{color}" stop-opacity="0"/></linearGradient>'
+        f'<g clip-path="url(#{clip})"><polygon points="0,0 70,0 30,{height} -40,{height}" fill="url(#sh)" '
+        f'style="animation:{move} ease-in-out {start:.2f}s infinite"/></g>'
+    )
 
 
 def counting(value: int, steps: int = 14) -> list[int]:
@@ -301,11 +318,15 @@ def stats(cal: dict) -> str:
         h = max(2, tall * value / top)
         x = left + i * slot
         color = BLUE if (year, month) == best and value else (THIS_MONTH if (year, month) == n["this_month"] else PAST_MONTH)
-        body.append(f'<rect class="g" x="{x:.1f}" y="{base - h:.1f}" width="{slot * .72:.1f}" height="{h:.1f}" fill="{color}"{delay(0.4 + i * 0.07)}>'
-                    f'<title>{value} in {datetime.date(year, month, 1):%B %Y}</title></rect>')
+        body.append(f'<g class="eq" style="animation-delay:{2.4 + i * 0.18:.2f}s">'
+                    f'<rect class="g" x="{x:.1f}" y="{base - h:.1f}" width="{slot * .72:.1f}" height="{h:.1f}" fill="{color}"{delay(0.4 + i * 0.07)}>'
+                    f'<title>{value} in {datetime.date(year, month, 1):%B %Y}</title></rect></g>')
         if (year, month) == best and value:
             body.append(f'<text class="m r" x="{x + slot * .36:.1f}" y="{base - h - 6:.1f}" font-size="8" fill="{BLUE}" text-anchor="middle"{delay(1.5)}>{value:,}</text>')
         body.append(f'<text class="m p" x="{x + slot * .36:.1f}" y="{base + 16}" font-size="8" fill="{FAINT}" text-anchor="middle"{delay(0.4 + i * 0.07)}>{datetime.date(year, month, 1):%b}</text>')
+
+    body.append(f'<clipPath id="chart"><rect x="{left}" y="{base - tall - 4}" width="{span}" height="{tall + 4}"/></clipPath>')
+    body.append(sheen("chart", base, "#ffffff", .5, 2.6, wide=True))
 
     x = 590
     streak = "current streak, and the longest" if n["current"] == n["longest"] else f"current streak · longest {n['longest']}"
@@ -334,13 +355,16 @@ def highlight(kick: str, headlines: list[str], text: str, bg: str, ink: str, at:
     soft = "rgba(255,255,255,0.78)" if ink == "#ffffff" else "rgba(22,23,29,0.72)"
     body = [
         f'<text class="m p" x="22" y="32" font-size="9" fill="{ink}"{delay(at)}>{esc(kick)}</text>',
-        f'<text class="t p" x="250" y="33" font-size="14" fill="{ink}" text-anchor="end"{delay(at)}>→</text>',
+        f'<g style="animation:nudge 1.6s ease-in-out {at + 1.5:.2f}s infinite">'
+        f'<text class="t p" x="250" y="33" font-size="14" fill="{ink}" text-anchor="end"{delay(at)}>→</text></g>',
         *headline,
         *[f'<text class="t r" x="22" y="{126 + 16 * k}" font-size="11.5" fill="{soft}"{delay(at + 0.3 + 0.08 * k)}>{esc(line)}</text>'
           for k, line in enumerate(lines)],
     ]
     if len(headlines) == 1:  # nothing to count: the headline rises in instead
         body[2] = body[2].replace('class="i"', 'class="i r"').replace("<text ", f"<text{delay(at + 0.15)} ", 1)
+    body.append('<clipPath id="card"><rect width="272" height="180" rx="10"/></clipPath>')
+    body.append(sheen("card", 180, "#ffffff", .22, at + 2.2))
     return svg(272, 180, body, headlines[-1], paper=bg, border=bg, style=css)
 
 
@@ -370,6 +394,10 @@ def repo_card(repo: dict, at: float) -> str:
           for k, line in enumerate(lines)],
         f'<text class="m p" x="22" y="134" font-size="8.5" fill="{FAINT}" style="letter-spacing:0.6px;animation-delay:{at + 0.4:.2f}s">{esc(meta)}</text>',
     ]
+    caret = 36 + len(repo["name"]) * 7.0 + 3
+    body.append(f'<rect x="{caret:.1f}" y="25" width="6" height="12" fill="{BLUE}" style="animation:blink 1.1s step-end {at:.2f}s infinite"/>')
+    body.append('<clipPath id="card"><rect width="272" height="154" rx="10"/></clipPath>')
+    body.append(sheen("card", 154, BLUE, .07, at + 3))
     return svg(272, 154, body, repo["name"])
 
 
