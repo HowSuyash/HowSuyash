@@ -32,7 +32,7 @@
 
 </td>
 <td width="32%" align="center" valign="middle">
-  <img src="assets/suyash.jpg" alt="Suyash Shukla" width="200"/>
+  <img src="assets/suyash.png" alt="Suyash Shukla" width="220"/>
 </td>
 </tr>
 </table>
@@ -124,11 +124,7 @@ Bug report in, failing test, green suite — a test-first bug-fixing agent on NV
 <p align="center"><img src="assets/h-graph.svg" alt="Contribution Graph" width="70%"/></p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/HowSuyash/HowSuyash/output/github-snake-dark.svg"/>
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/HowSuyash/HowSuyash/output/github-snake.svg"/>
-    <img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/HowSuyash/HowSuyash/output/github-snake-dark.svg"/>
-  </picture>
+  <img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/HowSuyash/HowSuyash/output/github-snake-dark.svg" width="100%"/>
 </p>
 
 <p align="center"><img src="assets/divider.svg" alt="" width="100%"/></p>
