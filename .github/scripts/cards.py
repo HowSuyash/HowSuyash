@@ -8,7 +8,7 @@ an editorial serif (Instrument Serif, OFL, embedded so it renders inside an <img
 A README can't run scripts, but an SVG shown through <img> still plays its own CSS and SMIL
 animations, so every card moves on its own: the name types itself and a blue letter walks along
 it, the portrait draws in from the top, the heatmap fills left to right and a light sweeps it,
-bars grow, numbers count up. All of it is CSS, which every browser plays inside an <img>. Viewers who ask for reduced motion get the still cards.
+bars grow, numbers count up, and every card plays again every 14 s. All of it is CSS, which every browser plays inside an <img>. Viewers who ask for reduced motion get the still cards.
 Standard library only.
 
     GITHUB_TOKEN=... python .github/scripts/cards.py <user> <out dir>
@@ -60,6 +60,13 @@ SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace"
 LEVEL = {"NONE": 0, "FIRST_QUARTILE": 1, "SECOND_QUARTILE": 2, "THIRD_QUARTILE": 3, "FOURTH_QUARTILE": 4}
 EASE = "cubic-bezier(.2,.7,.2,1)"
+# Every card plays its entrance, holds it, fades out and plays it again, every CYCLE seconds, so
+# the page is always moving, whenever someone scrolls to a card.
+CYCLE = 14.0
+
+
+def pct(seconds: float) -> str:
+    return f"{100 * seconds / CYCLE:.2f}%"
 
 
 def font(name: str) -> str:
@@ -71,17 +78,19 @@ STYLE = (
     f"@font-face{{font-family:'SerifItalic';src:url(data:font/ttf;base64,{font('InstrumentSerif-Italic.ttf')}) format('truetype')}}"
     ".s{font-family:'Serif',Georgia,serif}.i{font-family:'SerifItalic',Georgia,serif;font-style:italic}"
     f".m{{font-family:{MONO};letter-spacing:1.4px}}.t{{font-family:{SANS}}}"
+    # Each plays in its first moments of the cycle, holds, and fades out at the end of it.
     # rise: fades in from a few px below. pop: fades in. grow: a bar rising from its base.
-    "@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}"
-    "@keyframes pop{from{opacity:0}to{opacity:1}}"
-    "@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}"
-    "@keyframes type{from{fill-opacity:0}to{fill-opacity:1}}"
+    # type: a letter appearing. draw: the portrait drawn from the top down.
+    f"@keyframes rise{{0%{{opacity:0;transform:translateY(8px)}}{pct(.7)},96%{{opacity:1;transform:none}}100%{{opacity:0;transform:none}}}}"
+    f"@keyframes pop{{0%{{opacity:0}}{pct(.45)},96%{{opacity:1}}100%{{opacity:0}}}}"
+    f"@keyframes grow{{0%{{transform:scaleY(0)}}{pct(.9)},96%{{transform:scaleY(1)}}100%{{transform:scaleY(0)}}}}"
+    f"@keyframes type{{0%{{fill-opacity:0}}{pct(.12)},96%{{fill-opacity:1}}100%{{fill-opacity:0}}}}"
+    f"@keyframes draw{{0%{{clip-path:inset(0 0 100% 0)}}{pct(2.6)},96%{{clip-path:inset(0 0 0 0)}}100%{{clip-path:inset(0 0 100% 0)}}}}"
     "@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}"
-    "@keyframes on{from,to{visibility:visible}}"
-    "@keyframes draw{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}"
-    f".r{{animation:rise .7s {EASE} both}}.p{{animation:pop .45s ease-out both}}"
-    f".g{{transform-box:fill-box;transform-origin:50% 100%;animation:grow .9s {EASE} both}}"
-    "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
+    f".r{{animation:rise {CYCLE}s {EASE} infinite both}}.p{{animation:pop {CYCLE}s ease-out infinite both}}"
+    f".g{{transform-box:fill-box;transform-origin:50% 100%;animation:grow {CYCLE}s {EASE} infinite both}}"
+    # no motion wanted: the finished card, still
+    "@media (prefers-reduced-motion:reduce){*{animation:none!important}.last{visibility:visible!important}}"
 )
 
 
@@ -109,22 +118,31 @@ def kicker(x: float, y: float, text: str, fill: str = MUTED, dot: str | None = B
             f'<text class="m" x="{x + shift}" y="{y}" font-size="10" fill="{fill}">{esc(text)}</text></g>')
 
 
-def count_up(frames: list[str], start: float, length: float = 1.1) -> list[str]:
-    """Shows [frames] one after another from [start] over [length] s, easing out, and stays on
-    the last. CSS can't change what a text says, so every frame is drawn, hidden, and shown only
-    for its moment; the last one stays. [frames] are whole <text> tags."""
+COUNTERS = [0]
+
+
+def count_up(frames: list[str], start: float, length: float = 1.1) -> tuple[list[str], str]:
+    """Shows [frames] one after another from [start] over [length] s, easing out, then holds the
+    last until the cycle ends, every cycle. CSS can't change what a text says, so every frame is
+    drawn hidden and shown only for its moment. [frames] are whole <text> tags. Returns the tags
+    and the keyframes they need."""
     if len(frames) == 1:
-        return [frames[0]]
-    out = []
+        return [frames[0]], ""
+    out, css = [], ""
     n = len(frames)
     times = [start + length * (1 - (1 - k / (n - 1)) ** 2) for k in range(n)]
     for k, frame in enumerate(frames):
-        if k + 1 < n:
-            show = f"animation:on {times[k + 1] - times[k]:.3f}s step-end {times[k]:.3f}s"
-        else:
-            show = f"animation:on .01s step-end {times[k]:.3f}s forwards"
-        out.append(frame.replace("<text ", f'<text visibility="hidden" style="{show}" ', 1))
-    return out
+        # visible from its moment until the next frame's, or, for the last, until the fade-out
+        shown = (times[k + 1] - times[k]) if k + 1 < n else (CYCLE * .96 - (times[k] - times[0]))
+        COUNTERS[0] += 1
+        name = f"c{COUNTERS[0]}"
+        css += f"@keyframes {name}{{0%{{visibility:visible}}{pct(shown)},100%{{visibility:hidden}}}}"
+        tag = frame.replace(
+            "<text ", f'<text visibility="hidden" style="animation:{name} {CYCLE}s step-end {times[k]:.3f}s infinite" ', 1)
+        if k + 1 == n:
+            tag = tag.replace('class="', 'class="last ', 1)
+        out.append(tag)
+    return out, css
 
 
 def counting(value: int, steps: int = 14) -> list[int]:
@@ -165,7 +183,7 @@ def hero() -> str:
     t = 0.35
     first = ""
     for ch in FIRST:
-        first += f'<tspan style="animation:type .12s ease both {t:.2f}s">{esc(ch)}</tspan>'
+        first += f'<tspan style="animation:type {CYCLE}s linear {t:.2f}s infinite both">{esc(ch)}</tspan>'
         t += TYPE_EVERY
     t += 0.15
     # The blue letter walks along the last name, one letter at a time, for good.
@@ -175,12 +193,12 @@ def hero() -> str:
     walk_from = t + len(LAST) * TYPE_EVERY + 0.3
     last = ""
     for k, ch in enumerate(LAST):
-        last += (f'<tspan style="animation:type .12s ease both {t:.2f}s,walk {walk:.2f}s linear '
+        last += (f'<tspan style="animation:type {CYCLE}s linear {t:.2f}s infinite both,walk {walk:.2f}s linear '
                  f'{walk_from + k * WALK_EVERY:.2f}s infinite">{esc(ch)}</tspan>')
         t += TYPE_EVERY
     body = [
         # the portrait draws in from the top, like the pen going down the page
-        f'<image x="560" y="34" width="250" height="250" style="animation:draw 2.6s cubic-bezier(.3,.1,.3,1) .4s both" '
+        f'<image x="560" y="34" width="250" height="250" style="animation:draw {CYCLE}s cubic-bezier(.3,.1,.3,1) .4s infinite both" '
         f'href="data:image/png;base64,{portrait}"/>',
         kicker(40, 52, KICKER, at=0.1),
         f'<text class="s" x="36" y="138" font-size="84" fill="{INK}">{first}</text>',
@@ -267,11 +285,14 @@ def numbers(cal: dict) -> dict:
 def stats(cal: dict) -> str:
     n = numbers(cal)
     body = [kicker(40, 50, "THE LAST 12 MONTHS ON GITHUB", dot=None, at=0.1)]
-    body += count_up(
+    style = ""
+    tags, css = count_up(
         [f'<text class="s" x="40" y="96" font-size="38" fill="{INK}">{v:,} <tspan class="i">contributions</tspan></text>'
          for v in counting(n["total"])],
         start=0.3, length=1.4,
     )
+    body += tags
+    style += css
     left, base, span, tall = 40, 222, 480, 92
     slot = span / len(n["months"])
     top = max((v for _, v in n["months"]), default=0) or 1
@@ -296,28 +317,31 @@ def stats(cal: dict) -> str:
     for k, (big, value, small) in enumerate(rows):
         y = 84 + k * 68
         at = 0.5 + k * 0.25
-        body += count_up([f'<text class="s" x="{x}" y="{y}" font-size="30" fill="{INK}">{big(v)}</text>' for v in counting(value, 10)],
-                         start=at, length=1.0)
+        tags, css = count_up([f'<text class="s" x="{x}" y="{y}" font-size="30" fill="{INK}">{big(v)}</text>' for v in counting(value, 10)],
+                             start=at, length=1.0)
+        body += tags
+        style += css
         body.append(f'<text class="t p" x="{x}" y="{y + 18}" font-size="11" fill="{MUTED}"{delay(at + 0.2)}>{esc(small)}</text>')
         if k < len(rows) - 1:
             body.append(f'<line class="p" x1="{x}" y1="{y + 34}" x2="{W - 40}" y2="{y + 34}" stroke="{RULE}"{delay(at + 0.3)}/>')
-    return svg(W, 262, body, f"{n['total']} contributions in the last 12 months")
+    return svg(W, 262, body, f"{n['total']} contributions in the last 12 months", style=style)
 
 
 def highlight(kick: str, headlines: list[str], text: str, bg: str, ink: str, at: float) -> str:
     lines = textwrap.wrap(text, 40)[:3]
+    headline, css = count_up([f'<text class="i" x="22" y="98" font-size="31" fill="{ink}">{esc(h)}</text>' for h in headlines],
+                             start=at + 0.15, length=0.9)
     soft = "rgba(255,255,255,0.78)" if ink == "#ffffff" else "rgba(22,23,29,0.72)"
     body = [
         f'<text class="m p" x="22" y="32" font-size="9" fill="{ink}"{delay(at)}>{esc(kick)}</text>',
         f'<text class="t p" x="250" y="33" font-size="14" fill="{ink}" text-anchor="end"{delay(at)}>→</text>',
-        *count_up([f'<text class="i" x="22" y="98" font-size="31" fill="{ink}">{esc(h)}</text>' for h in headlines],
-                  start=at + 0.15, length=0.9),
+        *headline,
         *[f'<text class="t r" x="22" y="{126 + 16 * k}" font-size="11.5" fill="{soft}"{delay(at + 0.3 + 0.08 * k)}>{esc(line)}</text>'
           for k, line in enumerate(lines)],
     ]
     if len(headlines) == 1:  # nothing to count: the headline rises in instead
         body[2] = body[2].replace('class="i"', 'class="i r"').replace("<text ", f"<text{delay(at + 0.15)} ", 1)
-    return svg(272, 180, body, headlines[-1], paper=bg, border=bg)
+    return svg(272, 180, body, headlines[-1], paper=bg, border=bg, style=css)
 
 
 def ago(stamp: str) -> str:
